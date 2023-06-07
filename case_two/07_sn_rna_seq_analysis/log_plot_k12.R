@@ -507,9 +507,19 @@ casperClust = read.csv('~/@patrick/SF10711/cnv.analysis/sn.rna.seq/casper/CaSpER
 casperClust = gsub('2', 'No CNV detected  ', casperClust)
 casperClust = gsub('1', 'CNV detected', casperClust)
 # }}}
+# get mitosis signature
+# {{{
+library('flashClust')
+source("/home/patrick/code/git/GSEA_generic/GSEAfxsV3.R")
+broadSets=getBroadSets("/home/shared/genesets/Broad_GSEA/v7/msigdb_v7.4.xml")
+geneSelec = geneIds(broadSets[24288])
+geneInds = match(unlist(geneSelec), exprGene)
+geneInds = geneInds[!(is.na(geneInds))]
+mitosisVec = as.numeric(apply(exprD[geneInds,], 2, mean))
+# }}} 
 # Create heatmap (complex heatmap)
 # {{{
-row_ha = rowAnnotation('Unique reads' = anno_barplot(counts))
+row_ha = rowAnnotation('Unique reads' = anno_barplot(counts), 'Mitosis signature' = anno_barplot(mitosisVec))
 row_ha_malig = rowAnnotation(
     'Amplicon-seq' = snAmp$malignant,
     'CopyKat CNV' = copyDClust,

@@ -512,7 +512,7 @@ casperClust = gsub('1', 'CNV detected', casperClust)
 library('flashClust')
 source("/home/patrick/code/git/GSEA_generic/GSEAfxsV3.R")
 broadSets=getBroadSets("/home/shared/genesets/Broad_GSEA/v7/msigdb_v7.4.xml")
-geneSelec = geneIds(broadSets[24288])
+geneSelec = geneIds(broadSets[18950])
 geneInds = match(unlist(geneSelec), exprGene)
 geneInds = geneInds[!(is.na(geneInds))]
 mitosisVec = as.numeric(apply(exprD[geneInds,], 2, mean))

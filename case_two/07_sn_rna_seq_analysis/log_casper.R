@@ -1,4 +1,4 @@
-# purpose of this is to redo casper
+# casper cnv calling
 library('CaSpER')
 library('GenomicRanges')
 library('GenomeGraphs')
@@ -15,9 +15,6 @@ library('future')
 library('future.apply')
 library('circlize')
 library('ComplexHeatmap')
-source('/opt/CaSpER/R/plots.R')
-source('/opt/Rphylip/Rphylip.R')
-source('/opt/CaSpER/R/utility_functions.R')
 plan(multicore, workers=20)
 options(future.globals.maxSize = as.numeric('+Inf'))
 options(future.rng.onMisuse='ignore')
@@ -90,7 +87,7 @@ lohL = readBAFExtractOutput(path='~/@patrick/SF10711/cnv.analysis/sn.rna.seq/cas
 names(lohL) <- 'SF10711_p2'
 lohNameMapping = data.frame(loh.name = rep("SF10711_p2", ncol(expr)-2), sample.name = colnames(expr)[-c(1,2)])
 clusters = read.csv('~/@patrick/SF10711/cnv.analysis/sn.rna.seq/casper/clusters.csv')
-nonmalignant = c(8, 7, 4, 10)
+nonmalignant = c(9, 11, 8, 4, 12, 6)
 controlSampleIDs = clusters$X[clusters$x %in% nonmalignant]
 
 exprD = exprD[match(annoT$Gene, rownames(exprD)),]
@@ -172,8 +169,7 @@ fidGenes= fidGenes[c(1, 10, 7, 9)]
 # we can instead get the genes from the dataset
 clones = c('Astrocyte', 'Oligodendrocyte', 'Microglia', 'Neuron')
 bulkGenes = fread('~/@patrick/SF10711/integration_analysis/network_deconvolution/Bicor-None_signum0.438_minSize5_merge_ME_0.8_20246/kME_table_02-55-42.csv')
-# clones=c('honeydew1', 'saddlebrown', 'coral1', 'salmon')
-clones=c('honeydew1', 'tan', 'coral1', 'lavenderblush3')
+clones=c('purple', 'tan', 'yello', 'neuron')
 bulkGenes = lapply(clones, function(clone) bulkGenes$Gene[which(bulkGenes$'TopModPosFDR_0.12' == clone)])
 names(bulkGenes) = clones
 
@@ -260,16 +256,6 @@ names(clust) = colnames(expr)[-c(1,2)]
 snAmp=read.csv('~/@patrick/SF10711/sn.amp.seq/old/21_02_25_malignancy.adjusted.stringent.csv')
 snAmp$id = gsub('(N[0-9]*)\\.(.*)', '\\2\\.\\1', snAmp$id)
 snAmp=snAmp[match(colnames(exprD), snAmp$id),]
-snAmp[(clust==10 & snAmp[,2]==1),2]='0'
-snAmp[(clust==8 & snAmp[,2]==1),2]='0'
-snAmp[(clust==4 & snAmp[,2]==1),2]='0'
-snAmp[(clust==7 & snAmp[,2]==1),2]='0'
-snAmp[(clust==3 & snAmp[,2]==0),2]='1'
-snAmp[(clust==5 & snAmp[,2]==0),2]='1'
-snAmp[(clust==1 & snAmp[,2]==0),2]='1'
-snAmp[(clust==6 & snAmp[,2]==0),2]='1'
-snAmp[(clust==9 & snAmp[,2]==0),2]='1'
-snAmp[(clust==2 & snAmp[,2]==0),2]='1'
 clust2 = cutree(distHclust, k=12)
 snAmp[(clust2==6 & snAmp[,2]!='UNK'),2]='0'
 snAmp$malignant = gsub('0', 'Nonmalignant', snAmp$malignant)

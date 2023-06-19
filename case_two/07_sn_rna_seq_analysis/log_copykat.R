@@ -76,7 +76,7 @@ colnames(cytoT)=c("V1", "V2", "V3", "V4")
 # get rna-seq clusters
 # {{{
 clusters = read.csv('~/@patrick/SF10711/cnv.analysis/sn.rna.seq/casper/clusters.csv')
-nonmalignant = c(8, 7, 4, 10)
+nonmalignant = c(9, 11, 8, 4, 12, 6)
 controlSampleIDs = clusters$X[clusters$x %in% nonmalignant]
 # }}}
 # run copykat

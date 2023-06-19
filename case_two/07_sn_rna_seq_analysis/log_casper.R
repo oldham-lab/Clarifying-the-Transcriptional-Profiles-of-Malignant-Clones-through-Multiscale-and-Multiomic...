@@ -248,7 +248,7 @@ exprGene = expr$Gene[threshInd]
 attr(distDf, 'Labels') =paste0('x', seq(1, length(attr(distDf, 'Labels'))))
 distHclust = hclust(distDf, method = 'ward.D')
 dendP = as.dendrogram(distHclust)
-clust = cutree(distHclust, k=10)
+clust = cutree(distHclust, k=12)
 names(clust) = colnames(expr)[-c(1,2)]
 # }}}
 # get single-nucleus-amplicon information
@@ -257,12 +257,10 @@ snAmp=read.csv('~/@patrick/SF10711/sn.amp.seq/old/21_02_25_malignancy.adjusted.s
 snAmp$id = gsub('(N[0-9]*)\\.(.*)', '\\2\\.\\1', snAmp$id)
 snAmp=snAmp[match(colnames(exprD), snAmp$id),]
 clust2 = cutree(distHclust, k=12)
-snAmp[(clust2==6 & snAmp[,2]!='UNK'),2]='0'
 snAmp$malignant = gsub('0', 'Nonmalignant', snAmp$malignant)
 snAmp$malignant = gsub('1', 'Malignant', snAmp$malignant)
 snAmp$malignant = gsub('UNK', 'No data', snAmp$malignant)
 # }}}
-
 
 # plots
 # {{{
@@ -275,34 +273,6 @@ resultsFil = list(results[[1]][which(results[[1]]$Pval<1E-13), ])
 ## visualize mutual exclusive and co-occurent events
 plotMUAndCooccurence (resultsFil)
 plotSCellCNVTree(finalChrMat, 'SF10711_p2', fileName = 'treeTry')
-
-# visualize raw data
-# fineCNV = casperRunObj[[9]]@control.normalized.noiseRemoved[[1]]
-# # aggregate by cytoband
-# fineCNVcyto = future_apply(fineCNV, 2, function(x) aggregate(x, by = list(annoT$band), FUN=mean)[,2])
-# cytoAgg = aggregate(x, by = list(annoT$band), FUN=mean)
-# rownames(fineCNVcyto) = cytoAgg[,1]
-# fineCNVcyto = cbind(fineCNVcyto)
-# fineCNVcyto = fineCNVcyto[match(unique(annoT$band), rownames(fineCNVcyto)), ]
-# fineCNVcyto=(fineCNVcyto-1)*100+2
-# fineCNVcyto[fineCNVcyto>1 & fineCNVcyto<2] = 2
-# fineCNVcyto[fineCNVcyto>2 & fineCNVcyto<3] = 2
-# pdf('try.pdf', width=15)
-# Heatmap(t(fineCNVcyto),
-#         show_column_names = FALSE,
-#         show_row_names = FALSE,
-#         col = colorRamp2(breaks = c(0, 2, 4),
-#                             colors = c('#2166ac', '#f7f7f7', '#b2182b')
-#                         ),
-#         top_annotation = ha, 
-#         left_annotation = rha, 
-#         column_split = chroms,
-#         row_split = 10,
-#         cluster_columns = FALSE,
-#         clustering_distance_rows = 'spearman',
-#         clustering_method_rows = 'ward.D')
-# dev.off()
-# }}}
 
 samps <- obj@large.scale.cnv.events
 chrs <- as.vector(sapply(1:22, function(x) c(paste(x, "p", sep = ""), paste(x, "q", sep = ""))))
@@ -358,13 +328,11 @@ rha = rowAnnotation(
     col = list('Amplicon-seq' = c('Nonmalignant' = '#2166ac', 'Malignant' = '#b2182b', 'No data' = '#999999'),
                 'snRNA-seq clusters' = clustCols)
 )
-pdf('try.pdf')
+pdf('asper_heatmap.pdf')
 Heatmap(plotW,
         col = plotCols,
         cluster_columns = FALSE,
         show_row_names = FALSE,
         cluster_rows = plotW2D,
         left_annotation = rha)
-#         clustering_distance_rows = 'binary',
-#         clustering_method_rows = 'ward.D')
 dev.off()

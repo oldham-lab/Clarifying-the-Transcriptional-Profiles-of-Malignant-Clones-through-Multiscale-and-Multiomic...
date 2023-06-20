@@ -21,10 +21,8 @@ options(future.rng.onMisuse='ignore')
 # get expression matrix and cluster assignments
 # {{{
 # read in expression matrix to determine wanted dimensions
-expr = data.frame(fread('~/@patrick/SF10711/sn.rna.seq/sanity/log_transcription_quotients.txt'))
-expr1 =expr[,1]
-expr = expr[,-1]
-expr=data.table(expr1, apply(expr, 2, function(x) exp(x))*1E6)
+expr = fread('~/@patrick/SF10711/sn.rna.seq/190809_SF013_oldham_july_1/08_expression_matrix/expr.ensg.counts.csv')
+colnames(expr)[1:2] = c('Gene', 'ENSG')
 # }}}
 # harmonize gene names
 # {{{
@@ -40,14 +38,9 @@ gtfOut[,4]= alias2SymbolTable(gtfOut[,4], species = 'Hs')
 expr = data.frame(gtfOut[match(as.character(unlist(expr[,1])), gtfOut[,2]), 4], expr)
 colnames(expr)[1:2] = c('Gene', 'ENSG')
 
-exprC = fread('~/@patrick/SF10711/sn.rna.seq/190809_SF013_oldham_july_1/08_expression_matrix/expr.ensg.counts.csv')
-exprC = exprC[match(expr$ENSG, exprC$Gene),]
-exprC = data.frame(expr$Gene, exprC)
-colnames(exprC)[1:2] = c('Gene', 'ENSG')
-
-countThresh = future_apply(exprC[,-c(1,2)], 1, function(x) length(which(x<0.5)) / (ncol(exprC)-2))
+countThresh = future_apply(expr[,-c(1,2)], 1, function(x) length(which(x<0.5)) / (ncol(expr)-2))
 threshInd = which(countThresh<0.9)
-exprCD = exprC[threshInd,-c(1,2)]
+exprCD = expr[threshInd,-c(1,2)]
 exprD = expr[threshInd,-c(1,2)]
 exprSum = future_apply(exprCD, 1, sum)
 exprGene = expr$Gene[threshInd]
@@ -231,14 +224,12 @@ fmGenes=lapply(fmGenes, alias2SymbolTable, species='Hs')
 expr = data.frame(gtfOut[match(as.character(unlist(expr[,1])), gtfOut[,2]), 4], expr)
 colnames(expr)[1:2] = c('Gene', 'ENSG')
 
-exprC = fread('~/@patrick/SF10711/sn.rna.seq/190809_SF013_oldham_july_1/08_expression_matrix/expr.ensg.counts.csv')
-exprC = exprC[match(expr$ENSG, exprC$Gene),]
-exprC = data.frame(expr$Gene, exprC)
-colnames(exprC)[1:2] = c('Gene', 'ENSG')
+expr = fread('~/@patrick/SF10711/sn.rna.seq/190809_SF013_oldham_july_1/08_expression_matrix/expr.ensg.counts.csv')
+colnames(expr)[1:2] = c('Gene', 'ENSG')
 
-countThresh = future_apply(exprC[,-c(1,2)], 1, function(x) length(which(x<0.5)) / (ncol(exprC)-2))
+countThresh = future_apply(expr[,-c(1,2)], 1, function(x) length(which(x<0.5)) / (ncol(expr)-2))
 threshInd = which(countThresh<0.9)
-exprCD = exprC[threshInd,-c(1,2)]
+exprCD = expr[threshInd,-c(1,2)]
 exprD = expr[threshInd,-c(1,2)]
 exprSum = future_apply(exprCD, 1, sum)
 exprGene = expr$Gene[threshInd]
